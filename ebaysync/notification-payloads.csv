@@ -1,0 +1,31 @@
+AskSellerQuestion,GetMemberMessages,
+AuctionCheckoutComplete,GetItemTransactions,with default detail level
+BestOffer,GetBestOffers,
+BestOfferDeclined,GetBestOffers,
+BestOfferPlaced,GetBestOffers,
+BidPlaced,GetItem,
+BidReceived,GetItem,
+CheckoutBuyerRequestsTotal,GetItemTransactions, with default detail level
+CounterOfferReceived,GetBestOffers,
+EndOfAuction,GetItemTransactions, with ReturnAll detail level
+Feedback Notifications,GetFeedback, with ReturnAll detail level
+FeedbackLeft,GetFeedback,
+FeedbackReceived,GetFeedback,
+FeedbackStarChanged,GetUser,
+FixedPriceEndOfTransaction,GetItemTransactions, with default detail level
+FixedPriceTransaction,GetItemTransactions, with ReturnAll detail level
+INR (ItemNotReceived) Notifications,GetDispute,
+ItemAddedToBidGroup,GetItem,
+ItemAddedToWatchList,GetItem,
+ItemLost,GetItem,
+ItemRemovedFromBidGroup,GetItem,
+ItemRemovedFromWatchList,GetItem,
+ItemRevised,GetItem,
+ItemRevisedAddCharity,GetItem,
+ItemSold,GetItem,
+ItemUnsold,GetItem,
+ItemWon,GetItem,
+MyMessages Notification,GetMyMessages, with ReturnHeaders or ReturnMessages detail level
+OutBid,GetItem, with default detail level
+SecondChanceOffer,GetItem, with default detail level
+TokenRevocation,GetNotificationPreferences,
