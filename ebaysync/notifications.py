@@ -3,8 +3,7 @@ import hashlib
 import math
 import time
 
-from ebaysuds.client import EbaySuds, WSDL_URL
-from ebaysuds.config import ebaysuds_config
+from ebaysuds import EbaySuds, WSDL_URL, ebaysuds_config
 from suds.plugin import PluginContainer
 
 
