@@ -29,13 +29,13 @@ class Command(BaseCommand):
                 ntype.EventType = arg
                 user_prefs.NotificationEnable.append(ntype)
 
-            response = EbaySuds.SetNotificationPreferences(
-                ApplicationDeliveryPreferences=app_prefs
-                UserDeliveryPreferenceArray=user_prefs
+            response = client.SetNotificationPreferences(
+                ApplicationDeliveryPreferences=app_prefs,
+                UserDeliveryPreferenceArray=user_prefs,
             )
             print response.Ack
         else:
-            app_prefs = EbaySuds.GetNotificationPreferences(PreferenceLevel='Application')
+            app_prefs = client.GetNotificationPreferences(PreferenceLevel='Application')
             print 'Application:\n%s' % app_prefs.__str__()
-            user_prefs = EbaySuds.GetNotificationPreferences(PreferenceLevel='User')
+            user_prefs = client.GetNotificationPreferences(PreferenceLevel='User')
             print 'User:\n%s' % user_prefs.__str__()
