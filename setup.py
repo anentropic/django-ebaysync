@@ -2,8 +2,12 @@ from distutils.core import setup
 
 setup(
     name='django-ebaysync',
-    version='0.1.2',
-    packages=['ebaysync',],
+    version='0.1.3',
+    packages=[
+        'ebaysync',
+        'ebaysync.management',
+        'ebaysync.management.commands',
+    ],
     license='LGPL v3',
     long_description=open('pypi.rst').read(),
     author="Anentropic",
