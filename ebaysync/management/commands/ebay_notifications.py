@@ -10,6 +10,11 @@ class Command(BaseCommand):
     args = '<notification_type notification_type ...>'
     help = 'Call without args to GetNotificationPreferences, with args to SetNotificationPreferences.'
 
+    option_list = BaseCommand.option_list + (
+        make_option('--for',
+            help='eBay username to set/get preferences for (must exist as UserToken record in db)'),
+        )
+
     def handle(self, *args, **options):
         es_kwargs = {}
         if 'wsdl' in options:

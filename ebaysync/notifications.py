@@ -33,6 +33,7 @@ class NotificationHandler(object):
         # don balaclava, hijack a suds SoapClient instance to decode our payload for us
         sc_class = payload_method.clientclass({})
         soapclient = sc_class(self.client.sudsclient, payload_method.method)
+        
         # copy+pasted from SoapClient.send :(
         plugins = PluginContainer(soapclient.options.plugins)
         ctx = plugins.message.received(reply=message)
