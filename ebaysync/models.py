@@ -8,3 +8,6 @@ class UserToken(models.Model):
     @property
     def is_sandbox(self):
         return self.ebay_username.startswith('TESTUSER_')
+
+    def __unicode__(self):
+        return self.ebay_username

@@ -20,9 +20,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         es_kwargs = {}
-        if 'wsdl' in options:
+        # note: keys are always present in options even if not given by user
+        if options['wsdl']:
             es_kwargs['wsdl_url'] = options['wsdl']
-        if 'for' in options:
+        if options['for']:
             user = UserToken.objects.get(ebay_username=options['for'])
             es_kwargs['token'] = user.token
         client = EbaySuds(**es_kwargs)
