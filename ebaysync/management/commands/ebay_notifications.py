@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand, CommandError
 from ebaysuds import EbaySuds
 
 from ...views import get_notification_url
+from ...models import UserToken
 
 
 class Command(BaseCommand):
@@ -12,13 +13,18 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
         make_option('--for',
-            help='eBay username to set/get preferences for (must exist as UserToken record in db)'),
-        )
+                    help='eBay username to set/get preferences for (must exist as UserToken record in db), will use the one from ebaysuds.conf if ommitted'),
+        make_option('--wsdl',
+                    help='URL to the eBay API WSDL (eg to use your own pruned version)'),
+    )
 
     def handle(self, *args, **options):
         es_kwargs = {}
         if 'wsdl' in options:
             es_kwargs['wsdl_url'] = options['wsdl']
+        if 'for' in options:
+            user = UserToken.objects.get(ebay_username=options['for'])
+            es_kwargs['token'] = user.token
         client = EbaySuds(**es_kwargs)
 
         if args:
