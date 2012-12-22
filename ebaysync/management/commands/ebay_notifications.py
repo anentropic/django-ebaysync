@@ -35,7 +35,7 @@ class Command(BaseCommand):
             app_prefs.ApplicationEnable = 'Enable'
             # these fields are optional but suds sends empty keys for them if you don't give values
             app_prefs.DeviceType = 'Platform'
-            app_prefs.NotificationPayloadType - 'eBLSchemaSOAP'
+            app_prefs.NotificationPayloadType = 'eBLSchemaSOAP'
 
             user_prefs = client.sudsclient.factory.create('NotificationEnableArrayType')
             for arg in args:
