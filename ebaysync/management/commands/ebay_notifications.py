@@ -16,16 +16,21 @@ class Command(BaseCommand):
                     help='eBay username to set/get preferences for (must exist as UserToken record in db), will use the one from ebaysuds.conf if ommitted'),
         make_option('--wsdl',
                     help='URL to the eBay API WSDL (eg to use your own pruned version)'),
+        make_option('--sandbox', action='store_true',
+                    help='Connect to sandbox API (selected automatically if using --for with a sandbox user)'),
     )
 
     def handle(self, *args, **options):
         es_kwargs = {}
-        # note: keys are always present in options even if not given by user
+        # note: keys are always present in options dict even if not given by user
         if options['wsdl']:
             es_kwargs['wsdl_url'] = options['wsdl']
+        if options['sandbox']:
+            es_kwargs['sandbox'] = True
         if options['for']:
             user = UserToken.objects.get(ebay_username=options['for'])
             es_kwargs['token'] = user.token
+            es_kwargs['sandbox'] = user.is_sandbox
         client = EbaySuds(**es_kwargs)
 
         if args:
