@@ -1,3 +1,4 @@
+import logging
 import os
 import warnings
 from functools import wraps
@@ -14,6 +15,10 @@ from . import NOTIFICATION_PAYLOADS
 from .signals import ebay_platform_notification
 
 
+logging.basicConfig()
+log = logging.getLogger(__name__)
+
+
 def get_notification_url():
     current_site = Site.objects.get_current()
     if current_site.domain == 'example.com':
@@ -27,17 +32,25 @@ def notification(request):
     try:
         action = request.META['HTTP_SOAPACTION']
     except KeyError:
-        return HttpResponseBadRequest('Missing SOAPACTION header.')
+        msg = 'Missing SOAPACTION header.'
+        log.error(msg)
+        return HttpResponseBadRequest(msg)
+    else:
+        action = action.strip('"')
 
     try:
         notification_type = action.split('/')[-1]
     except IndexError:
-        return HttpResponseBadRequest('Could not parse notification type from SOAPACTION: %s' % action)
+        msg = 'Could not parse notification type from SOAPACTION: %s' % action
+        log.error(msg)
+        return HttpResponseBadRequest(msg)
 
     try:
         payload_type = NOTIFICATION_PAYLOADS[notification_type]
     except KeyError:
-        return HttpResponseBadRequest('Unrecognised notification type: %s' % notification_type)
+        msg = 'Unrecognised notification type: %s' % notification_type
+        log.error(msg)
+        return HttpResponseBadRequest(msg)
 
     handler = NotificationHandler(WSDL_URL)
     payload = handler.decode(payload_type, request.body)
