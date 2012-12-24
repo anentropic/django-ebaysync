@@ -1,4 +1,4 @@
-# generated from the table at:
+# partly generated from the table at:
 # http://developer.ebay.com/DevZone/XML/docs/WebHelp/wwhelp/wwhimpl/common/html/wwhelp.htm?context=eBay_XML_API&file=WorkingWithNotifications-Receiving_Platform_Notifications.html
 
 NOTIFICATION_PAYLOADS = {
@@ -39,4 +39,8 @@ NOTIFICATION_PAYLOADS = {
  'OutBid': 'GetItem',
  'SecondChanceOffer': 'GetItem',
  'TokenRevocation': 'GetNotificationPreferences',
+
+ # were missing from the table, added manually:
+ 'ItemClosed': 'GetItem',
+ 'ItemListed': 'GetItem',
 }

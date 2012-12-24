@@ -12,6 +12,7 @@ from ebaysuds import EbaySuds, WSDL_URL
 from suds.plugin import PluginContainer
 
 from . import NOTIFICATION_PAYLOADS
+from .notifications import NotificationHandler
 from .signals import ebay_platform_notification
 
 
