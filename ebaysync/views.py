@@ -6,6 +6,7 @@ from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from ebaysuds import EbaySuds, WSDL_URL
 from suds.plugin import PluginContainer
 
@@ -21,6 +22,7 @@ def get_notification_url():
 
 
 @require_POST
+@csrf_exempt
 def notification(request):
     try:
         action = request.META['HTTP_SOAPACTION']
