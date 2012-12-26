@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='django-ebaysync',
-    version='0.1.23',
+    version='0.1.32',
     packages=[
         'ebaysync',
         'ebaysync.management',
@@ -14,6 +14,6 @@ setup(
     author_email="ego@anentropic.com",
     url="https://github.com/anentropic/django-ebaysync",
     install_requires=[
-        "EbaySuds >= 0.3.3",
+        "EbaySuds >= 0.3.4",
     ],
 )
