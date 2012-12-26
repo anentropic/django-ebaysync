@@ -21,8 +21,14 @@ class InvalidSignature(NotificationValidationError):
 
 
 class NotificationHandler(object):
-    def __init__(wsdl_url=WSDL_URL):
-        self.client = EbaySuds(wsdl_url)
+    def __init__(self, wsdl_url=WSDL_URL, token=None, sandbox=False):
+        es_kwargs = {
+            'wsdl_url': wsdl_url,
+            'sandbox': sandbox,
+        }
+        if token is not None:
+            es_kwargs['token'] = token
+        self.client = EbaySuds(**es_kwargs)
 
     def decode(self, payload_type, message):
         try:
@@ -37,11 +43,7 @@ class NotificationHandler(object):
         # copy+pasted from SoapClient.send :(
         plugins = PluginContainer(soapclient.options.plugins)
         ctx = plugins.message.received(reply=message)
-        reply.message = ctx.reply
-        if retxml:
-            result = reply.message
-        else:
-            result = soapclient.succeeded(soapclient.method.binding.input, reply.message)
+        result = soapclient.succeeded(soapclient.method.binding.input, ctx.reply)
 
         if self.validate(result):
             return result
@@ -60,10 +62,15 @@ class NotificationHandler(object):
         
         # make hash
         m = hashlib.md5()
-        m.update(timestamp)
+        m.update(str(timestamp))
         m.update(ebaysuds_config.get('keys', 'dev_id'))
-        m.update(ebaysuds_config.get('keys', 'app_id'))
-        m.update(ebaysuds_config.get('keys', 'cert_id'))
+        if self.client.sandbox:
+            conf_section = 'sandbox_keys'
+        else:
+            conf_section = 'production_keys'
+        # sandbox?  
+        m.update(ebaysuds_config.get(conf_section, 'app_id'))
+        m.update(ebaysuds_config.get(conf_section, 'cert_id'))
         computed_hash = base64.standard_b64encode(m.hexdigest())
         if computed_hash != message.RequesterCredentials.NotificationSignature:
             raise InvalidSignature(message.RequesterCredentials.NotificationSignature)

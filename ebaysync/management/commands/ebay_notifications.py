@@ -13,7 +13,8 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
         make_option('--for',
-                    help='eBay username to set/get preferences for (must exist as UserToken record in db), will use the one from ebaysuds.conf if ommitted'),
+                    help='eBay username to set/get preferences for (must exist as UserToken record in db),\
+                          will use the auth token from ebaysuds.conf if ommitted'),
         make_option('--wsdl',
                     help='URL to the eBay API WSDL (eg to use your own pruned version)'),
         make_option('--sandbox', action='store_true',
@@ -22,7 +23,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         es_kwargs = {}
-        # note: keys are always present in options dict even if not given by user
+        # note: keys are always present in options dict (with None value) even if not given by user
         if options['wsdl']:
             es_kwargs['wsdl_url'] = options['wsdl']
         if options['sandbox']:
@@ -36,7 +37,7 @@ class Command(BaseCommand):
         if args:
             app_prefs = client.sudsclient.factory.create('ApplicationDeliveryPreferencesType')
             app_prefs.AlertEnable = 'Enable'
-            app_prefs.ApplicationURL = get_notification_url()
+            app_prefs.ApplicationURL = get_notification_url(username=options['for'])
             app_prefs.ApplicationEnable = 'Enable'
             # these fields are optional but suds sends empty keys for them if you don't give values
             app_prefs.DeviceType = 'Platform'
