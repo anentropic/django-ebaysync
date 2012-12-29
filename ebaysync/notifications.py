@@ -31,14 +31,14 @@ def ebay_timestamp_string(datetime_obj):
     # convert python datetime obj to string representation used by eBay
     # appears to be a bug in suds - eBay's milliseconds are loaded into python datetime
     # as microseconds so the datetime_obj we get from suds is not accurate to the data
-    return '%(year)d-%(month)d-%(day)dT%(hour)d:%(minute)d:%(second)d.%(millisecond)dZ' % {
-        'year': datetime_obj.year,
-        'month': datetime_obj.month,
-        'day': datetime_obj.day,
-        'hour': datetime_obj.hour,
-        'minute': datetime_obj.minute,
-        'second': datetime_obj.second,
-        'millisecond': datetime_obj.microsecond# don't need to x1000 as we're omitting the zero-padding
+    return '%(year)s-%(month)s-%(day)sT%(hour)s:%(minute)s:%(second)s.%(millisecond)sZ' % {
+        'year': '%04d' % datetime_obj.year,
+        'month': '%02d' % datetime_obj.month,
+        'day': '%02d' % datetime_obj.day,
+        'hour': '%02d' % datetime_obj.hour,
+        'minute': '%02d' % datetime_obj.minute,
+        'second': '%02d' % datetime_obj.second,
+        'millisecond': '%03d' % datetime_obj.microsecond# don't need to x1000 as we're omitting three digits of zero-padding
     }
 
 
