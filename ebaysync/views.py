@@ -15,7 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 from ebaysuds import EbaySuds
 from suds.plugin import PluginContainer
 
-from . import NOTIFICATION_PAYLOADS
+from . import NOTIFICATION_PAYLOADS, NOTIFICATION_TYPES
 from .models import UserToken
 from .notifications import NotificationHandler
 from .signals import ebay_platform_notification
@@ -74,6 +74,6 @@ def notification(request, username=None):
     log.debug(payload)
 
     # fire django signal
-    ebay_platform_notification.send_robust(sender=notification_type, payload=payload)
+    ebay_platform_notification.send_robust(sender=NOTIFICATION_TYPES[notification_type], payload=payload)
 
     return HttpResponse('OK baby')

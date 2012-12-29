@@ -1,3 +1,6 @@
+from collections import namedtuple
+
+
 # partly generated from the table at:
 # http://developer.ebay.com/DevZone/XML/docs/WebHelp/wwhelp/wwhimpl/common/html/wwhelp.htm?context=eBay_XML_API&file=WorkingWithNotifications-Receiving_Platform_Notifications.html
 
@@ -44,3 +47,9 @@ NOTIFICATION_PAYLOADS = {
  'ItemClosed': 'GetItem',
  'ItemListed': 'GetItem',
 }
+
+# empty structs to use as distinct signal senders
+NOTIFICATION_TYPES = {}
+for ntype in NOTIFICATION_PAYLOADS.keys():
+    NOTIFICATION_TYPES[ntype] = namedtuple(ntype, [])
+
