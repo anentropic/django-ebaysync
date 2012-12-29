@@ -7,7 +7,10 @@ class UserToken(models.Model):
 
     @property
     def is_sandbox(self):
-        return self.ebay_username.startswith('TESTUSER_')
+        # sandbox user name is created as 'TESTUSER_x' but elsewhere eBay
+        # usernames seem to be case-insensitive so I don't trust them to
+        # always send back the original uppercase prefix...
+        return self.ebay_username.lower().startswith('testuser_')
 
     def __unicode__(self):
         return self.ebay_username

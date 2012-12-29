@@ -66,12 +66,12 @@ def notification(request, username=None):
 
     nh_kwargs = {}
     if username is not None:
-        user = get_object_or_404(UserToken, ebay_username=username)
+        user = get_object_or_404(UserToken, ebay_username__iexact=username)
         nh_kwargs['token'] = user.token
         nh_kwargs['sandbox'] = user.is_sandbox
     handler = NotificationHandler(**nh_kwargs)
     payload = handler.decode(payload_type, request.body)
-    log.info(payload)
+    log.debug(payload)
 
     # fire django signal
     ebay_platform_notification.send_robust(sender=notification_type, payload=payload)
