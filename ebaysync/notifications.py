@@ -86,7 +86,6 @@ class NotificationHandler(object):
         
         timestamp_str = ebay_timestamp_string(message.Timestamp)
         floattime = time.mktime(message.Timestamp.timetuple())
-        print '%s -> %s' % (message.Timestamp, timestamp_str)
         if not settings.DEBUG:
             # check timestamp is within 10 minutes of current time
             diff_seconds = math.fabs(time.time() - floattime)
@@ -101,7 +100,6 @@ class NotificationHandler(object):
             conf_section = 'sandbox_keys'
         else:
             conf_section = 'production_keys'
-        print conf_section
         m.update(ebaysuds_config.get(conf_section, 'app_id'))
         m.update(ebaysuds_config.get(conf_section, 'cert_id'))
         computed_hash = base64.standard_b64encode(m.digest())
