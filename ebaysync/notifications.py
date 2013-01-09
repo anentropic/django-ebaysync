@@ -69,6 +69,7 @@ class NotificationHandler(object):
         result = soapclient.succeeded(soapclient.method.binding.input, ctx.reply)
 
         # `result` only contains the soap:Body of the response (parsed into objects)
+        # but the signature we need is in the soap:Header element
         signature = self._parse_signature(message)
 
         if self.validate(result, signature):
