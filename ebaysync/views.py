@@ -1,12 +1,9 @@
 import os
-from functools import wraps
 
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_POST
-from ebaysuds.service import EbaySuds
-from suds.plugin import PluginContainer
 
 from . import NOTIFICATION_PAYLOADS
 from .signals import ebay_platform_notification
