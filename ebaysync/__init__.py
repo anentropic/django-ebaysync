@@ -1,4 +1,7 @@
-# generated from the table at:
+from collections import namedtuple
+
+
+# partly generated from the table at:
 # http://developer.ebay.com/DevZone/XML/docs/WebHelp/wwhelp/wwhimpl/common/html/wwhelp.htm?context=eBay_XML_API&file=WorkingWithNotifications-Receiving_Platform_Notifications.html
 
 NOTIFICATION_PAYLOADS = {
@@ -12,19 +15,16 @@ NOTIFICATION_PAYLOADS = {
  'CheckoutBuyerRequestsTotal': 'GetItemTransactions',
  'CounterOfferReceived': 'GetBestOffers',
  'EndOfAuction': 'GetItemTransactions',
- 'Feedback Notifications': 'GetFeedback',
+ 'Feedback': 'GetFeedback',
  'FeedbackLeft': 'GetFeedback',
  'FeedbackReceived': 'GetFeedback',
  'FeedbackStarChanged': 'GetUser',
  'FixedPriceEndOfTransaction': 'GetItemTransactions',
  'FixedPriceTransaction': 'GetItemTransactions',
-
- # expanded from "INR (ItemNotReceived) Notifications" in the table:
  'INRBuyerOpenedDispute': 'GetDispute',
  'INRBuyerRespondedToDispute': 'GetDispute',
  'INRBuyerClosedDispute': 'GetDispute',
  'INRSellerRespondedToDispute': 'GetDispute',
-
  'ItemAddedToBidGroup': 'GetItem',
  'ItemAddedToWatchList': 'GetItem',
  'ItemLost': 'GetItem',
@@ -35,8 +35,24 @@ NOTIFICATION_PAYLOADS = {
  'ItemSold': 'GetItem',
  'ItemUnsold': 'GetItem',
  'ItemWon': 'GetItem',
- 'MyMessages Notification': 'GetMyMessages',
+ 'MyMessages': 'GetMyMessages',
+ 'MyMessagesAlert': 'GetMyMessages',
+ 'MyMessagesAlertHeader': 'GetMyMessages',
+ 'MyMessageseBayMessage': 'GetMyMessages',
+ 'MyMessageseBayMessageHeader': 'GetMyMessages',
+ 'MyMessagesM2MMessage': 'GetMyMessages',
+ 'MyMessagesM2MMessageHeader': 'GetMyMessages',
  'OutBid': 'GetItem',
  'SecondChanceOffer': 'GetItem',
  'TokenRevocation': 'GetNotificationPreferences',
+
+ # were missing from the table, added manually:
+ 'ItemClosed': 'GetItem',
+ 'ItemListed': 'GetItem',
 }
+
+# empty structs to use as distinct signal senders
+NOTIFICATION_TYPES = {}
+for ntype in NOTIFICATION_PAYLOADS.keys():
+    NOTIFICATION_TYPES[ntype] = namedtuple(ntype, [])
+

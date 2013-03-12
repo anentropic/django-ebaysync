@@ -5,5 +5,5 @@ from .views import notification
 
 urlpatterns = patterns('',
     # url(r'^$', 'dpm.views.home', name='home'),
-    url(r'^notification/', notification, name="notification"),
+    url(r'^notification/(?P<username>[-_\.\*\w]+)?', notification, name="notification"),
 )
