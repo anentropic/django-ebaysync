@@ -1,7 +1,7 @@
 from optparse import make_option
 
 from django.core.management.base import BaseCommand, CommandError
-from ebaysuds import EbaySuds
+from ebaysuds import TradingAPI
 
 from ...views import get_notification_url
 from ...models import UserToken
@@ -32,7 +32,7 @@ class Command(BaseCommand):
             user = UserToken.objects.get(ebay_username=options['for'])
             es_kwargs['token'] = user.token
             es_kwargs['sandbox'] = user.is_sandbox
-        client = EbaySuds(**es_kwargs)
+        client = TradingAPI(**es_kwargs)
 
         if args:
             app_prefs = client.sudsclient.factory.create('ApplicationDeliveryPreferencesType')
