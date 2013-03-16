@@ -14,6 +14,6 @@ setup(
     author_email="ego@anentropic.com",
     url="https://github.com/anentropic/django-ebaysync",
     install_requires=[
-        "EbaySuds >= 0.3.4",
+        "EbaySuds >= 0.4.2",
     ],
 )

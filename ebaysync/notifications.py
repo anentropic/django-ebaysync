@@ -5,7 +5,7 @@ import math
 import time
 
 from django.conf import settings
-from ebaysuds import EbaySuds, WSDL_URL, ebaysuds_config
+from ebaysuds import TradingAPI
 from suds.plugin import PluginContainer
 from suds.sax.parser import Parser
 
@@ -43,14 +43,15 @@ def ebay_timestamp_string(datetime_obj):
 
 
 class NotificationHandler(object):
-    def __init__(self, wsdl_url=WSDL_URL, token=None, sandbox=False):
+    def __init__(self, wsdl_url=None, token=None, sandbox=False):
         es_kwargs = {
-            'wsdl_url': wsdl_url,
             'sandbox': sandbox,
         }
+        if wsdl_url is not None:
+            es_kwargs['wsdl_url'] = wsdl_url
         if token is not None:
             es_kwargs['token'] = token
-        self.client = EbaySuds(**es_kwargs)
+        self.client = TradingAPI(**es_kwargs)
         self.saxparser = Parser()
 
     def decode(self, payload_type, message):
@@ -96,13 +97,9 @@ class NotificationHandler(object):
         # make hash
         m = hashlib.md5()
         m.update(timestamp_str)
-        m.update(ebaysuds_config.get('keys', 'dev_id'))
-        if self.client.sandbox:
-            conf_section = 'sandbox_keys'
-        else:
-            conf_section = 'production_keys'
-        m.update(ebaysuds_config.get(conf_section, 'app_id'))
-        m.update(ebaysuds_config.get(conf_section, 'cert_id'))
+        m.update(self.client.config.get('keys', 'dev_id'))
+        m.update(self.client.config.get(conf_section, 'app_id'))
+        m.update(self.client.config.get(conf_section, 'cert_id'))
         computed_hash = base64.standard_b64encode(m.digest())
         if computed_hash != signature:
             raise InvalidSignature("%s != %s" % (computed_hash, signature))

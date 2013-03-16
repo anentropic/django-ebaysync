@@ -12,8 +12,6 @@ from django.http import HttpResponse, HttpResponseNotAllowed, HttpResponseBadReq
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-from ebaysuds import EbaySuds
-from suds.plugin import PluginContainer
 
 from . import NOTIFICATION_PAYLOADS, NOTIFICATION_TYPES
 from .models import UserToken
