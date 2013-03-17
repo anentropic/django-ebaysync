@@ -98,8 +98,8 @@ class NotificationHandler(object):
         m = hashlib.md5()
         m.update(timestamp_str)
         m.update(self.client.config.get('keys', 'dev_id'))
-        m.update(self.client.config.get(conf_section, 'app_id'))
-        m.update(self.client.config.get(conf_section, 'cert_id'))
+        m.update(self.client.config.get('keys', 'app_id'))
+        m.update(self.client.config.get('keys', 'cert_id'))
         computed_hash = base64.standard_b64encode(m.digest())
         if computed_hash != signature:
             raise InvalidSignature("%s != %s" % (computed_hash, signature))
