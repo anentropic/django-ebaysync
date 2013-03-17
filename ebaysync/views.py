@@ -32,7 +32,7 @@ def get_notification_url(username=None):
 
 @require_POST
 @csrf_exempt
-def notification(request, username=None):
+def notification(request, username=None, _validate=True):
     if settings.DEBUG:
         with open(os.path.join(settings.PROJECT_ROOT, 'last_request.pkl'), 'wb') as output:
             meta = dict([(k,v) for k,v in request.META.items() if isinstance(v, basestring)])
@@ -62,7 +62,9 @@ def notification(request, username=None):
         log.error(msg)
         return HttpResponseBadRequest(msg)
 
-    nh_kwargs = {}
+    nh_kwargs = {
+        '_validate': _validate,
+    }
     if username is not None:
         user = get_object_or_404(UserToken, ebay_username__iexact=username)
         nh_kwargs['token'] = user.token

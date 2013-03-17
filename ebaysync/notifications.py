@@ -43,7 +43,7 @@ def ebay_timestamp_string(datetime_obj):
 
 
 class NotificationHandler(object):
-    def __init__(self, wsdl_url=None, token=None, sandbox=False):
+    def __init__(self, wsdl_url=None, token=None, sandbox=False, _validate=True):
         es_kwargs = {
             'sandbox': sandbox,
         }
@@ -53,6 +53,7 @@ class NotificationHandler(object):
             es_kwargs['token'] = token
         self.client = TradingAPI(**es_kwargs)
         self.saxparser = Parser()
+        self._validate = _validate
 
     def decode(self, payload_type, message):
         try:
@@ -73,7 +74,7 @@ class NotificationHandler(object):
         # but the signature we need is in the soap:Header element
         signature = self._parse_signature(message)
 
-        if self.validate(result, signature):
+        if not self._validate or self.validate(result, signature):
             return result
 
     def _parse_signature(self, message):
