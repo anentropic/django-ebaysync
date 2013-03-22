@@ -22,17 +22,17 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        es_kwargs = {}
+        ebay_kwargs = {}
         # note: keys are always present in options dict (with None value) even if not given by user
         if options['wsdl']:
-            es_kwargs['wsdl_url'] = options['wsdl']
+            ebay_kwargs['wsdl_url'] = options['wsdl']
         if options['sandbox']:
-            es_kwargs['sandbox'] = True
+            ebay_kwargs['sandbox'] = True
         if options['for']:
             user = UserToken.objects.get(ebay_username=options['for'])
-            es_kwargs['token'] = user.token
-            es_kwargs['sandbox'] = user.is_sandbox
-        client = TradingAPI(**es_kwargs)
+            ebay_kwargs['token'] = user.token
+            ebay_kwargs['sandbox'] = user.is_sandbox
+        client = TradingAPI(**ebay_kwargs)
 
         if args:
             app_prefs = client.sudsclient.factory.create('ApplicationDeliveryPreferencesType')
