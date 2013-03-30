@@ -4,8 +4,7 @@ from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
 
 from ebaysuds import TradingAPI
-from ebaysync import NOTIFICATION_TYPES
-from ebaysync.signals import ebay_platform_notification
+from ebaysync.signals import ebay_platform_notification, selling_poller_item
 from ebaysync.models import UserToken
 
 
@@ -18,25 +17,20 @@ INCLUDABLE_SECTIONS = set(
     'ActiveList', 'BidList', 'DeletedFromSoldList', 'DeletedFromUnsoldList',
     'ScheduledList', 'SellingSummary', 'SoldList', 'UnsoldList',
 )
+SELLING_ITEM_TYPES = {}
+for stype in INCLUDABLE_SECTIONS:
+    SELLING_ITEM_TYPES[stype] = namedtuple(stype, [])
 
-# SellingStatus.HighBidder or SellingStatus.QuantitySold indicate ended due to sale
-
-# GetItem with a TransactionID?
-
-# if notifications are unreliable we may need to poll by crontab
-
-# 1. poll:
-#    response = client.GetMyeBaySelling(UnsoldList={'Include':True})
-# 2. relist each of:
-#    response.UnsoldList.ItemArray.Item[...]
-
-# note 5000 API call per day limit
-# (1440 minutes in a day... 5 minute polling should be fine) 
+# not sure whether it's a quirk of Suds or of eBay, but some sections return a
+# response with a differently-named element so we have to translate
+RESPONSE_SECTIONS = {
+    'SellingSummary': 'Summary',
+}
 
 
 class Command(BaseCommand):
     #args = '<response_section response_section ...>'
-    help = ("It's recommended to limit the included sections to only those "\
+    help = ("It's recommended to limit the included sections to only those "
             "needed. Choose from: %s" % ', '.join(INCLUDABLE_SECTIONS)
 
     option_list = BaseCommand.option_list + (
@@ -53,23 +47,31 @@ class Command(BaseCommand):
         ebay_kwargs = {}
         # note: keys are always present in options dict (with None value) even if not given by user
         if options['wsdl']:
-            ebay_kwargs['wsdl_url'] = options['wsdl']
+            ebay_kwargs['wsdl_url'] = options.pop('wsdl')
         if options['sandbox']:
             ebay_kwargs['sandbox'] = True
+            options.pop('sandbox')
         if options['for']:
-            user = UserToken.objects.get(ebay_username=options['for'])
+            user = UserToken.objects.get(ebay_username=options.pop('for'))
             ebay_kwargs['token'] = user.token
             ebay_kwargs['sandbox'] = user.is_sandbox
         client = TradingAPI(**ebay_kwargs)
 
         # by using ReturnAll detail level we have to specifically exclude unwanted sections
-        include_sections = set(['UnsoldList'])
+        include_sections = INCLUDABLE_SECTIONS & set(options)
         exclude_sections = INCLUDABLE_SECTIONS - include_sections
+        call_kwargs = {
+            'DetailLevel': 'ReturnAll',
+        }
         for section in exclude_sections:
-            ebay_kwargs[section] = {'Include': False}
+            call_kwargs[section] = {'Include': False}
 
-        response = client.GetMyeBaySelling(DetailLevel='ReturnAll')
+        response = client.GetMyeBaySelling(**call_kwargs)
+
         if response and response.Ack.lower() in ("success","warning"):
-            for item in response.UnsoldList.ItemArray.Item:
-                
-
+            for section in include_sections:
+                response_section = getattr(response, RESPONSE_SECTIONS.get(section, section))
+                if not hasattr(response_section, 'ItemArray'):
+                    continue
+                for item in response_section.ItemArray.Item:
+                    selling_poller_item.send_robust(sender=SELLING_ITEM_TYPES[section], item=item)
