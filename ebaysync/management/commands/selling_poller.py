@@ -13,10 +13,10 @@ log = logging.getLogger(__name__)
 
 OMIT_ATTRS = ('RelistParentID',)
 
-INCLUDABLE_SECTIONS = set(
+INCLUDABLE_SECTIONS = set([
     'ActiveList', 'BidList', 'DeletedFromSoldList', 'DeletedFromUnsoldList',
     'ScheduledList', 'SellingSummary', 'SoldList', 'UnsoldList',
-)
+])
 SELLING_ITEM_TYPES = {}
 for stype in INCLUDABLE_SECTIONS:
     SELLING_ITEM_TYPES[stype] = namedtuple(stype, [])
@@ -45,6 +45,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         ebay_kwargs = {}
+        user = None
         # note: keys are always present in options dict (with None value) even if not given by user
         if options['wsdl']:
             ebay_kwargs['wsdl_url'] = options.pop('wsdl')
@@ -57,11 +58,16 @@ class Command(BaseCommand):
             ebay_kwargs['sandbox'] = user.is_sandbox
         client = TradingAPI(**ebay_kwargs)
 
+        if user is None:
+            token = client.config.get('auth', 'token')
+            user = UserToken.objects.get(token=token)
+
         # by using ReturnAll detail level we have to specifically exclude unwanted sections
         include_sections = INCLUDABLE_SECTIONS & set(options)
         exclude_sections = INCLUDABLE_SECTIONS - include_sections
         call_kwargs = {
             'DetailLevel': 'ReturnAll',
+            'MessageID': user.ebay_username,  # returned as CorrelationID in the response
         }
         for section in exclude_sections:
             call_kwargs[section] = {'Include': False}
