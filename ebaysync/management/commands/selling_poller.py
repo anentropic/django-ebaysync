@@ -1,32 +1,10 @@
-import logging
-from collections import namedtuple
 from optparse import make_option
 
 from django.core.management.base import BaseCommand, CommandError
 
-from ebaysuds import TradingAPI
-from ebaysync.signals import ebay_platform_notification, selling_poller_item
 from ebaysync.models import UserToken
-
-
-logging.basicConfig()
-log = logging.getLogger(__name__)
-
-OMIT_ATTRS = ('RelistParentID',)
-
-INCLUDABLE_SECTIONS = set([
-    'ActiveList', 'BidList', 'DeletedFromSoldList', 'DeletedFromUnsoldList',
-    'ScheduledList', 'SellingSummary', 'SoldList', 'UnsoldList',
-])
-SELLING_ITEM_TYPES = {}
-for stype in INCLUDABLE_SECTIONS:
-    SELLING_ITEM_TYPES[stype] = namedtuple(stype, [])
-
-# not sure whether it's a quirk of Suds or of eBay, but some sections return a
-# response with a differently-named element so we have to translate
-RESPONSE_SECTIONS = {
-    'SellingSummary': 'Summary',
-}
+from ebaysync.signallers import my_ebay_selling
+from ebaysync.signals import selling_poller_item
 
 
 class Command(BaseCommand):
@@ -54,31 +32,7 @@ class Command(BaseCommand):
             ebay_kwargs['sandbox'] = True
             options.pop('sandbox')
         if options['for']:
-            user = UserToken.objects.get(ebay_username=options.pop('for'))
-            ebay_kwargs['token'] = user.token
-            ebay_kwargs['sandbox'] = user.is_sandbox
-        client = TradingAPI(**ebay_kwargs)
+            ebay_kwargs['user_token_obj'] = UserToken.objects.get(ebay_username=options.pop('for'))
 
-        if user is None:
-            token = client.config.get('auth', 'token')
-            user = UserToken.objects.get(token=token)
-
-        # by using ReturnAll detail level we have to specifically exclude unwanted sections
-        include_sections = INCLUDABLE_SECTIONS & set(options)
-        exclude_sections = INCLUDABLE_SECTIONS - include_sections
-        call_kwargs = {
-            'DetailLevel': 'ReturnAll',
-            'MessageID': user.ebay_username,  # returned as CorrelationID in the response
-        }
-        for section in exclude_sections:
-            call_kwargs[section] = {'Include': False}
-
-        response = client.GetMyeBaySelling(**call_kwargs)
-
-        if response and response.Ack.lower() in ("success","warning"):
-            for section in include_sections:
-                response_section = getattr(response, RESPONSE_SECTIONS.get(section, section))
-                if not hasattr(response_section, 'ItemArray'):
-                    continue
-                for item in response_section.ItemArray.Item:
-                    selling_poller_item.send_robust(sender=SELLING_ITEM_TYPES[section], item=item)
+        # do API call, parse response and send signals
+        my_ebay_selling(sections=args, **ebay_kwargs)
