@@ -1,4 +1,5 @@
 import logging
+from collections import namedtuple
 from optparse import make_option
 
 from django.core.management.base import BaseCommand, CommandError
@@ -31,7 +32,7 @@ RESPONSE_SECTIONS = {
 class Command(BaseCommand):
     #args = '<response_section response_section ...>'
     help = ("It's recommended to limit the included sections to only those "
-            "needed. Choose from: %s" % ', '.join(INCLUDABLE_SECTIONS)
+            "needed. Choose from: %s" % ', '.join(INCLUDABLE_SECTIONS))
 
     option_list = BaseCommand.option_list + (
         make_option('--for',
