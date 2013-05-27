@@ -3,7 +3,7 @@ from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
 
 from ebaysync.models import UserToken
-from ebaysync.signallers import my_ebay_selling
+from ebaysync.signallers import my_ebay_selling, INCLUDABLE_SECTIONS
 from ebaysync.signals import selling_poller_item
 
 
@@ -34,5 +34,5 @@ class Command(BaseCommand):
         if options['for']:
             ebay_kwargs['user_token_obj'] = UserToken.objects.get(ebay_username=options.pop('for'))
 
-        # do API call, parse response and send signals
+        # do API call, parse response and send signals
         my_ebay_selling(sections=args, **ebay_kwargs)

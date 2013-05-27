@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 # beware of circular imports
-from .management.commands.selling_poller import SELLING_ITEM_TYPES
+from .signallers import SELLING_ITEM_TYPES
 
 
 # partly generated from the table at:
