@@ -60,7 +60,15 @@ def my_ebay_selling(user_token_obj=None, sections=None, sandbox=False, wsdl_url=
 
     response = client.GetMyeBaySelling(**call_kwargs)
 
-    if response and response.Ack.lower() in ("success","warning"):
+    if not response:
+        log.error("No response from GetMyeBaySelling call")
+        return
+
+    if response.Ack.lower() != 'success':
+        log.info(response.Ack)
+        log.info(response.Errors)
+
+    if response.Ack.lower() in ("success","warning"):
         for section in include_sections:
             response_section = getattr(response, RESPONSE_SECTIONS.get(section, section))
             if not hasattr(response_section, 'ItemArray'):

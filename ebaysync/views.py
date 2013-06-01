@@ -43,7 +43,7 @@ def notification(request, username=None, _validate=True):
         action = request.META['HTTP_SOAPACTION']
     except KeyError:
         msg = 'Missing SOAPACTION header.'
-        log.error(msg)
+        log.error('notification(view): %s', msg)
         return HttpResponseBadRequest(msg)
     else:
         action = action.strip('"')
@@ -52,14 +52,14 @@ def notification(request, username=None, _validate=True):
         notification_type = action.split('/')[-1]
     except IndexError:
         msg = 'Could not parse notification type from SOAPACTION: %s' % action
-        log.error(msg)
+        log.error('notification(view): %s', msg)
         return HttpResponseBadRequest(msg)
 
     try:
         payload_type = NOTIFICATION_PAYLOADS[notification_type]
     except KeyError:
         msg = 'Unrecognised notification type: %s' % notification_type
-        log.error(msg)
+        log.error('notification(view): %s', msg)
         return HttpResponseBadRequest(msg)
 
     nh_kwargs = {
@@ -71,7 +71,9 @@ def notification(request, username=None, _validate=True):
         nh_kwargs['sandbox'] = user.is_sandbox
     handler = NotificationHandler(**nh_kwargs)
     payload = handler.decode(payload_type, request.body)
-    log.debug(payload)
+
+    log.info('notification(view): %s', notification_type)
+    log.debug('notification(view): %s', payload)# <-- big lump
 
     # fire django signal
     ebay_platform_notification.send_robust(sender=NOTIFICATION_TYPES[notification_type], payload=payload)
