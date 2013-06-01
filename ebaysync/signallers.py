@@ -40,6 +40,7 @@ def my_ebay_selling(user_token_obj=None, sections=None, sandbox=False, wsdl_url=
         ebay_kwargs['sandbox'] = user_token_obj.is_sandbox
     client = TradingAPI(**ebay_kwargs)
 
+    # if no UserToken instance supplied, get default user and token from ebaysuds.conf
     if user_token_obj is None:
         token = client.config.get('auth', 'token')
         user = UserToken.objects.get(token=token)
