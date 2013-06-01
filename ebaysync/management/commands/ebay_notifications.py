@@ -19,6 +19,13 @@ class Command(BaseCommand):
                     help='URL to the eBay API WSDL (eg to use your own pruned version)'),
         make_option('--sandbox', action='store_true',
                     help='Connect to sandbox API (selected automatically if using --for with a sandbox user)'),
+        make_option('--disable', action='store_true',
+                    help='Disable the specified notification types rather than enabling them'),
+        make_option('--disable-application', action='store_true',
+                    help='Disable all notifications for the app (while preserving notification preferences)'),
+        make_option('--disable-markdown-alerts', action='store_true',
+                    help="Disable the sending of alerts when eBay disables notifications (e.g. due to\
+                          undeliverability) for your app. You probably don't want this."),
     )
 
     def handle(self, *args, **options):
@@ -34,19 +41,23 @@ class Command(BaseCommand):
             ebay_kwargs['sandbox'] = user.is_sandbox
         client = TradingAPI(**ebay_kwargs)
 
-        if args:
+        # if these keys are in options we want to set prefs, not get them
+        set_prefs_keys = ('disable-markdown-alerts', 'disable-application')
+
+        if args or any((True for key in options if key in set_prefs_keys)):
             app_prefs = client.sudsclient.factory.create('ApplicationDeliveryPreferencesType')
-            app_prefs.AlertEnable = 'Enable'
+            app_prefs.AlertEnable = 'Disable' if options['disable-markdown-alerts'] else 'Enable'
             app_prefs.ApplicationURL = get_notification_url(username=options['for'])
-            app_prefs.ApplicationEnable = 'Enable'
-            # these fields are optional but suds sends empty keys for them if you don't give values
+            app_prefs.ApplicationEnable = 'Disable' if options['disable-application'] else 'Enable'
+            # these fields are optional in the API but suds sends empty keys
+            # for them if we don't give values here
             app_prefs.DeviceType = 'Platform'
             app_prefs.NotificationPayloadType = 'eBLSchemaSOAP'
 
             user_prefs = client.sudsclient.factory.create('NotificationEnableArrayType')
             for arg in args:
                 ntype = client.sudsclient.factory.create('NotificationEnableType')
-                ntype.EventEnable = 'Enable'
+                ntype.EventEnable = 'Disable' if options['disable'] else 'Enable'
                 ntype.EventType = arg
                 user_prefs.NotificationEnable.append(ntype)
 
