@@ -26,25 +26,12 @@ RESPONSE_SECTIONS = {
 }
 
 
-def my_ebay_selling(user_token_obj=None, sections=None, sandbox=False, wsdl_url=None):
+def selling_items(client, sections=None):
     """
+    Generator:
     Makes a GetMyeBaySelling request and for each item in the specified sections
-    (eg ['UnsoldList']) sends a `selling_poller_item` signal with the item attached
+    (eg ['UnsoldList']) sends a tuple which includes the item
     """
-    ebay_kwargs = {}
-    if wsdl_url is not None:
-        ebay_kwargs['wsdl_url'] = wsdl_url
-    ebay_kwargs['sandbox'] = sandbox
-    if user_token_obj is not None:
-        ebay_kwargs['token'] = user_token_obj.token
-        ebay_kwargs['sandbox'] = user_token_obj.is_sandbox
-    client = TradingAPI(**ebay_kwargs)
-
-    # if no UserToken instance supplied, get default user and token from ebaysuds.conf
-    if user_token_obj is None:
-        token = client.config.get('auth', 'token')
-        user = UserToken.objects.get(token=token)
-
     if sections is None:
         sections = []
 
@@ -74,8 +61,8 @@ def my_ebay_selling(user_token_obj=None, sections=None, sandbox=False, wsdl_url=
             if not hasattr(response_section, 'ItemArray'):
                 continue
             for item in response_section.ItemArray.Item:
-                selling_poller_item.send_robust(
+                yield (
                     sender=SELLING_ITEM_TYPES[section],
                     item=item,
-                    username=user.ebay_username
+                    client=client,
                 )
