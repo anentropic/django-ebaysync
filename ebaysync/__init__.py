@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 # beware of circular imports
-from .signallers import SELLING_ITEM_TYPES
+from .myebay import SELLING_ITEM_TYPES
 
 
 # partly generated from the table at:
