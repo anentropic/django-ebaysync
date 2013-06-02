@@ -3,7 +3,7 @@ from django.db import models
 
 class UserToken(models.Model):
     ebay_username = models.CharField(max_length=255, primary_key=True)
-    token = models.TextField()
+    token = models.TextField(unique=True)
 
     @property
     def is_sandbox(self):

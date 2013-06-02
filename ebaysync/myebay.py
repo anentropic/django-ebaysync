@@ -59,7 +59,7 @@ def selling_items(client, sections=None, message_id=None):
 
     if response.Ack.lower() in ("success","warning"):
         for section in include_sections:
-            response_section = getattr(response, RESPONSE_SECTIONS.get(section, section))
+            response_section = getattr(response, RESPONSE_SECTIONS.get(section, section), None)
             if not hasattr(response_section, 'ItemArray'):
                 continue
             for item in response_section.ItemArray.Item:

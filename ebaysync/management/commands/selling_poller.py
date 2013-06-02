@@ -2,6 +2,7 @@ from optparse import make_option
 
 from django.core.management.base import BaseCommand, CommandError
 
+from ebaysuds import TradingAPI
 from ebaysync.models import UserToken
 from ebaysync.myebay import selling_items, INCLUDABLE_SECTIONS
 from ebaysync.signals import selling_poller_item
@@ -24,7 +25,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         ebay_kwargs = {}
-        user = None
         # note: keys are always present in options dict (with None value) even if not given by user
         if options['wsdl']:
             ebay_kwargs['wsdl_url'] = options.pop('wsdl')
@@ -32,7 +32,10 @@ class Command(BaseCommand):
             ebay_kwargs['sandbox'] = True
             options.pop('sandbox')
         if options['for']:
-            ebay_kwargs['user_token_obj'] = UserToken.objects.get(ebay_username=options.pop('for'))
+            # Note: iexact doesn't work properly in SQLite, type it correctly!
+            ut = UserToken.objects.get(ebay_username__iexact=options.pop('for'))
+            ebay_kwargs['token'] = ut.token
+            ebay_kwargs['sandbox'] = ut.is_sandbox
 
         client = TradingAPI(**ebay_kwargs)
 
