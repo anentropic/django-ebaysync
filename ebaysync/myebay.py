@@ -62,7 +62,7 @@ def selling_items(client, sections=None):
                 continue
             for item in response_section.ItemArray.Item:
                 yield (
-                    sender=SELLING_ITEM_TYPES[section],
-                    item=item,
-                    client=client,
+                    SELLING_ITEM_TYPES[section],
+                    item,
+                    client,
                 )
