@@ -26,7 +26,7 @@ RESPONSE_SECTIONS = {
 }
 
 
-def selling_items(client, sections=None):
+def selling_items(client, sections=None, message_id=None):
     """
     Generator:
     Makes a GetMyeBaySelling request and for each item in the specified sections
@@ -40,10 +40,12 @@ def selling_items(client, sections=None):
     exclude_sections = INCLUDABLE_SECTIONS - include_sections
     call_kwargs = {
         'DetailLevel': 'ReturnAll',
-        'MessageID': user_token_obj.ebay_username,  # returned as CorrelationID in the response
     }
     for section in exclude_sections:
         call_kwargs[section] = {'Include': False}
+    if message_id is not None:
+        # (returned as CorrelationID in the response)
+        call_kwargs['MessageID']: message_id
 
     response = client.GetMyeBaySelling(**call_kwargs)
 
