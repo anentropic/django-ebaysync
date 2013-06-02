@@ -42,12 +42,11 @@ class Command(BaseCommand):
             ebay_kwargs['token'] = ut.token
             ebay_kwargs['sandbox'] = ut.is_sandbox
 
-        log.debug('selling_poller: %s', ebay_kwargs)
         client = TradingAPI(**ebay_kwargs)
 
         # do API call, parse response and send signals
         for section_instance, item, client in selling_items(sections=args, client=client):
-            log.info('selling_poller: %s > %s', section_instance, item.ItemID)
+            log.info('selling_poller: %s > %s', section_instance.__class__.__name__, item.ItemID)
             selling_poller_item.send_robust(
                 sender=section_instance,
                 item=item,
