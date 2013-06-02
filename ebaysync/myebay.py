@@ -45,7 +45,7 @@ def selling_items(client, sections=None, message_id=None):
         call_kwargs[section] = {'Include': False}
     if message_id is not None:
         # (returned as CorrelationID in the response)
-        call_kwargs['MessageID']: message_id
+        call_kwargs['MessageID'] = message_id
 
     response = client.GetMyeBaySelling(**call_kwargs)
 
