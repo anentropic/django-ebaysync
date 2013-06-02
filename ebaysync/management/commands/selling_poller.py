@@ -1,3 +1,4 @@
+import logging
 from optparse import make_option
 
 from django.core.management.base import BaseCommand, CommandError
@@ -6,6 +7,10 @@ from ebaysuds import TradingAPI
 from ebaysync.models import UserToken
 from ebaysync.myebay import selling_items, INCLUDABLE_SECTIONS
 from ebaysync.signals import selling_poller_item
+
+
+logging.basicConfig()
+log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -37,12 +42,14 @@ class Command(BaseCommand):
             ebay_kwargs['token'] = ut.token
             ebay_kwargs['sandbox'] = ut.is_sandbox
 
+        log.debug('selling_poller: %s', ebay_kwargs)
         client = TradingAPI(**ebay_kwargs)
 
         # do API call, parse response and send signals
-        for sender, item, client in selling_items(sections=args, client=client):
+        for section_instance, item, client in selling_items(sections=args, client=client):
+            log.info('selling_poller: %s > %s', section_instance, item.ItemID)
             selling_poller_item.send_robust(
-                sender=sender,
+                sender=section_instance,
                 item=item,
                 client=client,
             )
