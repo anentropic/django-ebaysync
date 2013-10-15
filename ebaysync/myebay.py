@@ -66,5 +66,4 @@ def selling_items(client, sections=None, message_id=None):
                 yield (
                     SELLING_ITEM_TYPES[section],
                     item,
-                    client,
                 )
