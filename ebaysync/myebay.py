@@ -1,10 +1,6 @@
 import logging
 from collections import namedtuple
 
-from ebaysuds import TradingAPI
-from ebaysync.signals import ebay_platform_notification, selling_poller_item
-from ebaysync.models import UserToken
-
 
 logging.basicConfig()
 log = logging.getLogger(__name__)
@@ -26,7 +22,7 @@ RESPONSE_SECTIONS = {
 }
 
 
-def selling_items(client, sections=None, message_id=None):
+def selling_items(client, sections=None, message_id=None, **kwargs):
     """
     Generator:
     Makes a GetMyeBaySelling request and for each item in the specified sections
@@ -49,6 +45,8 @@ def selling_items(client, sections=None, message_id=None):
         # (returned as CorrelationID in the response)
         call_kwargs['MessageID'] = message_id
 
+    call_kwargs.update(kwargs)
+
     response = client.GetMyeBaySelling(**call_kwargs)
 
     if not response:
@@ -59,7 +57,7 @@ def selling_items(client, sections=None, message_id=None):
         log.info(response.Ack)
         log.info(response.Errors)
 
-    if response.Ack.lower() in ("success","warning"):
+    if response.Ack.lower() in ("success", "warning"):
         for section in include_sections:
             response_section = getattr(response, RESPONSE_SECTIONS.get(section, section), None)
             if not hasattr(response_section, 'ItemArray'):
