@@ -70,15 +70,15 @@ def selling_items(client, sections=None, message_id=None, **kwargs):
             log.info(response.Errors)
 
         total_items = 0
-        response_sections = []
+        response_sections = {}
         if response.Ack.lower() in ("success", "warning"):
             for section in include_sections:
                 response_section = getattr(response, RESPONSE_SECTIONS.get(section, section), None)
                 if hasattr(response_section, 'ItemArray'):
-                    response_sections.append(response_section)
+                    response_sections[section] = response_section
                 total_items += response_section.PaginationResult.TotalNumberOfEntries
 
-            for response_section in response_sections:
+            for section, response_section in response_sections.items():
                 for item in response_section.ItemArray.Item:
                     yield (
                         SELLING_ITEM_TYPES[section],
