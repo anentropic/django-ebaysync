@@ -85,13 +85,12 @@ def selling_items(client, sections=None, message_id=None, **kwargs):
                         item,
                         total_items,
                     )
-                log.info(response_section.PaginationResult)
-                log.info(call_kwargs[section]['Pagination'])
                 if call_kwargs[section]['Pagination']['PageNumber'] >= response_section.PaginationResult.TotalNumberOfPages:
                     # if we finished paging this section, don't request it next time round the loop
                     call_kwargs[section] = {'Include': False}
                 else:
                     call_kwargs[section]['Pagination']['PageNumber'] += 1
+                    log.debug('proceeding to page %d of %s', call_kwargs[section]['Pagination']['PageNumber'], section)
         else:
             # fatal
             break
