@@ -45,7 +45,7 @@ class Command(BaseCommand):
         client = TradingAPI(**ebay_kwargs)
 
         # do API call, parse response and send signals
-        for section_cls, item in selling_items(sections=args, client=client):
+        for section_cls, item, total in selling_items(sections=args, client=client):
             log.info('selling_poller: %s > %s', section_cls.__name__, item.ItemID)
             selling_poller_item.send_robust(
                 sender=section_cls,

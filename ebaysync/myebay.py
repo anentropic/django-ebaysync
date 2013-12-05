@@ -69,15 +69,21 @@ def selling_items(client, sections=None, message_id=None, **kwargs):
             log.info(response.Ack)
             log.info(response.Errors)
 
+        total_items = 0
+        response_sections = []
         if response.Ack.lower() in ("success", "warning"):
             for section in include_sections:
                 response_section = getattr(response, RESPONSE_SECTIONS.get(section, section), None)
-                if not hasattr(response_section, 'ItemArray'):
-                    continue
+                if hasattr(response_section, 'ItemArray'):
+                    response_sections.append(response_section)
+                total_items += response_section.PaginationResult.TotalNumberOfEntries
+
+            for response_section in response_sections:
                 for item in response_section.ItemArray.Item:
                     yield (
                         SELLING_ITEM_TYPES[section],
                         item,
+                        total_items,
                     )
                 log.info(response_section.PaginationResult)
                 log.info(call_kwargs[section]['Pagination'])
@@ -90,7 +96,7 @@ def selling_items(client, sections=None, message_id=None, **kwargs):
             # fatal
             break
 
-        for section in include_sections:
+        for section in response_sections:
             if 'Include' not in call_kwargs[section] or call_kwargs[section]['Include']:
                 break
         else:
