@@ -1,10 +1,7 @@
 from optparse import make_option
 
-from django.core.management.base import BaseCommand, CommandError
-from ebaysuds import TradingAPI
-
-from ...views import get_notification_url
-from ...models import UserToken
+from ebaysync.management.base import BaseEbayCommand
+from ebaysync.views import get_notification_url
 
 
 # if these keys are in options we want to set prefs, not get them
@@ -16,18 +13,11 @@ SET_PREFS_KEYS = (
 )
 
 
-class Command(BaseCommand):
+class Command(BaseEbayCommand):
     args = '<notification_type notification_type ...>'
     help = 'Call without args to GetNotificationPreferences, with args to SetNotificationPreferences.'
 
-    option_list = BaseCommand.option_list + (
-        make_option('--for',
-                    help='eBay username to set/get preferences for (must exist as UserToken record in db),\
-                          will use the auth token from ebaysuds.conf if ommitted'),
-        make_option('--wsdl',
-                    help='URL to the eBay API WSDL (eg to use your own pruned version)'),
-        make_option('--sandbox', action='store_true',
-                    help='Connect to sandbox API (selected automatically if using --for with a sandbox user)'),
+    option_list = BaseEbayCommand.option_list + (
         make_option('--disable', action='store_true',
                     help='Disable the specified notification types rather than enabling them'),
         make_option('--disable-application', action='store_true',
@@ -43,17 +33,7 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        ebay_kwargs = {}
-        # note: keys are always present in options dict (with None value) even if not given by user
-        if options['wsdl']:
-            ebay_kwargs['wsdl_url'] = options['wsdl']
-        if options['sandbox']:
-            ebay_kwargs['sandbox'] = True
-        if options['for']:
-            user = UserToken.objects.get(ebay_username=options['for'])
-            ebay_kwargs['token'] = user.token
-            ebay_kwargs['sandbox'] = user.is_sandbox
-        client = TradingAPI(**ebay_kwargs)
+        client = self.get_ebay_client(options)
 
         alert_enable = True
         if options['disable_markdown_alerts']:
