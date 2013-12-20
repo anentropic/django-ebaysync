@@ -76,6 +76,12 @@ def notification(request, username=None, _validate=True):
     log.debug('notification(view): %s', payload)# <-- big lump
 
     # fire django signal
-    ebay_platform_notification.send_robust(sender=NOTIFICATION_TYPES[notification_type], payload=payload)
+    results = ebay_platform_notification.send_robust(sender=NOTIFICATION_TYPES[notification_type], payload=payload)
+    for receiver, response in results:
+        if isinstance(response, BaseException):
+            log.error("notification(view): %s.%s raised an error: %s",
+                      receiver.__module__,
+                      receiver.__name__,
+                      response)
 
     return HttpResponse('OK baby')
