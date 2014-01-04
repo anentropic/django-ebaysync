@@ -74,7 +74,7 @@ def selling_items(client, sections=None, message_id=None, **kwargs):
         if response.Ack.lower() in ("success", "warning"):
             for section in include_sections:
                 try:
-                    response_section = getattr(response, RESPONSE_SECTIONS.get(section, section), None)
+                    response_section = getattr(response, RESPONSE_SECTIONS.get(section, section))
                 except AttributeError:
                     continue
                 if hasattr(response_section, 'ItemArray'):
