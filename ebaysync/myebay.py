@@ -73,7 +73,10 @@ def selling_items(client, sections=None, message_id=None, **kwargs):
         response_sections = {}
         if response.Ack.lower() in ("success", "warning"):
             for section in include_sections:
-                response_section = getattr(response, RESPONSE_SECTIONS.get(section, section), None)
+                try:
+                    response_section = getattr(response, RESPONSE_SECTIONS.get(section, section), None)
+                except AttributeError:
+                    continue
                 if hasattr(response_section, 'ItemArray'):
                     response_sections[section] = response_section
                 total_items += response_section.PaginationResult.TotalNumberOfEntries
